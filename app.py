@@ -44,7 +44,7 @@ def donors():
 def new_donor():
     if request.method == 'POST':
         try:
-            # Create the new acceptor
+            # Create the new donor
             donor = system.add_donor(
                 name=request.form['name'],
                 date_of_birth=datetime.strptime(request.form['date_of_birth'], '%Y-%m-%d').date(),
@@ -54,8 +54,8 @@ def new_donor():
                 medical_complications=request.form['medical_complications']
             )
             
-            # Get the Donor_ID of the newly added acceptor
-            donor_id = donor.donor_id  # Assuming your add_donor method returns the created acceptor object
+            # Get the Donor_ID of the newly added donor
+            donor_id = donor.donor_id  # Assuming your add_donor method returns the created donor object
             
             # Flash the success message with Donor_ID
             flash(f'Donor added successfully! Donor ID: {donor_id}', 'success')
@@ -63,6 +63,40 @@ def new_donor():
         except Exception as e:
             flash(str(e), 'danger')
     return render_template('donors/new.html', blood_types=[bt.value for bt in BloodType])
+
+@app.route('/donors/<int:donor_id>/edit', methods=['GET', 'POST'])
+def edit_donor(donor_id):
+    donor = system.session.query(Donor).get(donor_id)
+    
+    if request.method == 'POST':
+        try:
+            donor.name = request.form['name']
+            donor.date_of_birth = datetime.strptime(request.form['date_of_birth'], '%Y-%m-%d').date()
+            donor.blood_type = request.form['blood_type']
+            donor.contact_number = request.form['contact_number']
+            donor.address = request.form['address']
+            donor.medical_complications = request.form['medical_complications']
+            
+            system.session.commit()
+            flash('Donor updated successfully!', 'success')
+            return redirect(url_for('donors'))
+        except Exception as e:
+            flash(str(e), 'danger')
+            
+    return render_template('donors/edit.html', 
+                         donor=donor, 
+                         blood_types=[bt.value for bt in BloodType])
+
+@app.route('/donors/<int:donor_id>/delete', methods=['POST'])
+def delete_donor(donor_id):
+    try:
+        donor = system.session.query(Donor).get(donor_id)
+        system.session.delete(donor)
+        system.session.commit()
+        flash('Donor deleted successfully!', 'success')
+    except Exception as e:
+        flash(str(e), 'danger')
+    return redirect(url_for('donors'))
 
 # Acceptor routes
 @app.route('/acceptors')
@@ -86,7 +120,7 @@ def new_acceptor():
             # Get the Donor_ID of the newly added acceptor
             acceptor_id = acceptor.acceptor_id  # Assuming your add_donor method returns the created acceptor object
             
-            # Flash the success message with Donor_ID
+            # Flash the success message with Acceptor_ID
             flash(f'Acceptor added successfully! Acceptor ID: {acceptor_id}', 'success')
             return redirect(url_for('acceptors'))
         except Exception as e:

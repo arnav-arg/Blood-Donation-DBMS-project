@@ -1,0 +1,51 @@
+<!-- templates/donors/edit.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Edit Donor</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ donor.name }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="date_of_birth" class="form-label">Date of Birth</label>
+            <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                   value="{{ donor.date_of_birth.strftime('%Y-%m-%d') }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="blood_type" class="form-label">Blood Type</label>
+            <select class="form-control" id="blood_type" name="blood_type" required>
+                {% for blood_type in blood_types %}
+                <option value="{{ blood_type }}" {% if blood_type == donor.blood_type %}selected{% endif %}>
+                    {{ blood_type }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="contact_number" class="form-label">Contact Number</label>
+            <input type="tel" class="form-control" id="contact_number" name="contact_number" 
+                   value="{{ donor.contact_number }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" id="address" name="address" rows="3" required>{{ donor.address }}</textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="medical_complications" class="form-label">Medical Complications</label>
+            <textarea class="form-control" id="medical_complications" name="medical_complications" rows="3">
+                {{ donor.medical_complications }}
+            </textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Update Donor</button>
+        <a href="{{ url_for('donors') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
