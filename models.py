@@ -121,14 +121,15 @@ class Transaction(Base):
     __tablename__ = 'transactions'
     
     transaction_id = Column(Integer, primary_key=True, autoincrement=True)
-    donation_id = Column(Integer, ForeignKey('donations.donation_id'), nullable=False)
-    acceptor_id = Column(Integer, ForeignKey('acceptors.acceptor_id'), nullable=False)
+    donation_id = Column(Integer, ForeignKey('donations.donation_id', ondelete='CASCADE'), nullable=False)
+    acceptor_id = Column(Integer, ForeignKey('acceptors.acceptor_id', ondelete='CASCADE'), nullable=False)
     date = Column(Date, nullable=False)
     quantity = Column(Numeric(5, 2), nullable=False)
     created_at = Column(DateTime, default=func.now())
     
-    donation = relationship("Donation", back_populates="transactions")
-    acceptor = relationship("Acceptor", back_populates="transactions")
+    # You can also modify the relationship to include cascade options
+    donation = relationship("Donation", back_populates="transactions", cascade="all, delete")
+    acceptor = relationship("Acceptor", back_populates="transactions", cascade="all, delete")
     
     __table_args__ = (
         CheckConstraint('quantity > 0', name='positive_quantity'),
