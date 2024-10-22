@@ -182,15 +182,15 @@ class BloodDonationSystem:
         self.session.commit()
         return donor
     
-    def add_acceptor(self, name, blood_type, contact_number, address=None, medical_complications=None):
+    def add_acceptor(self, name, blood_type, contact_number, address=None, health_condition=None):
         acceptor = Acceptor(
             name=name,
             blood_type=blood_type,
             contact_number=contact_number,
             address=address,
-            medical_complications=medical_complications
+            health_condition=health_condition
         )
-        self.session.add(donor)
+        self.session.add(acceptor)
         self.session.commit()
         return acceptor
     

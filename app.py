@@ -45,7 +45,7 @@ def new_donor():
     if request.method == 'POST':
         try:
             # Create the new acceptor
-            acceptor = system.add_donor(
+            donor = system.add_donor(
                 name=request.form['name'],
                 date_of_birth=datetime.strptime(request.form['date_of_birth'], '%Y-%m-%d').date(),
                 blood_type=request.form['blood_type'],
@@ -55,7 +55,7 @@ def new_donor():
             )
             
             # Get the Donor_ID of the newly added acceptor
-            donor_id = acceptor.donor_id  # Assuming your add_donor method returns the created acceptor object
+            donor_id = donor.donor_id  # Assuming your add_donor method returns the created acceptor object
             
             # Flash the success message with Donor_ID
             flash(f'Donor added successfully! Donor ID: {donor_id}', 'success')
@@ -84,10 +84,10 @@ def new_acceptor():
             )
             
             # Get the Donor_ID of the newly added acceptor
-            acceptor_id = acceptor.donor_id  # Assuming your add_donor method returns the created acceptor object
+            acceptor_id = acceptor.acceptor_id  # Assuming your add_donor method returns the created acceptor object
             
             # Flash the success message with Donor_ID
-            flash(f'Donor added successfully! Donor ID: {acceptor_id}', 'success')
+            flash(f'Acceptor added successfully! Acceptor ID: {acceptor_id}', 'success')
             return redirect(url_for('acceptors'))
         except Exception as e:
             flash(str(e), 'danger')
@@ -142,10 +142,10 @@ def new_blood_bank():
     return render_template('blood_banks/new.html')
 
 # Stock routes
-@app.route('/stock')
-def stock():
+@app.route('/blood-stocks')
+def blood_stocks():
     stock_levels = system.get_blood_stock_levels()
-    return render_template('stock/index.html', stock_levels=stock_levels)
+    return render_template('blood_stocks/index.html', stock_levels=stock_levels)
 
 if __name__ == '__main__':
     app.run(debug=True)
