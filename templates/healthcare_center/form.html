@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <p>{{ form.name.label }} {{ form.name }}</p>
+    <p>{{ form.location.label }} {{ form.location }}</p>
+    <p>{{ form.contact_number.label }} {{ form.contact_number }}</p>
+    <button type="submit">Submit</button>
+</form>
+<a href="{{ url_for('main.healthcare_center_list') }}">Back to Healthcare Center List</a>
+{% endblock %}

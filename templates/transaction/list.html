@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Transaction List{% endblock %}
+{% block content %}
+<h1>Transaction List</h1>
+<a href="{{ url_for('main.transaction_create') }}">Add New Transaction</a>
+<table>
+    <thead>
+        <tr>
+            <th>Donor</th>
+            <th>Acceptor</th>
+            <th>Quantity</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.donor.Name }}</td>
+            <td>{{ transaction.acceptor.Name }}</td>
+            <td>{{ transaction.Quantity }}</td>
+            <td>{{ transaction.Transaction_Date }}</td>
+            <td>
+                <a href="{{ url_for('main.transaction_edit', id=transaction.Transaction_ID) }}">Edit</a>
+                <form action="{{ url_for('main.transaction_delete', id=transaction.Transaction_ID) }}" method="POST" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

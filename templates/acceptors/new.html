@@ -1,0 +1,45 @@
+<!-- templates/acceptors/new.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-
+                <!-- templates/acceptors/new.html (continued) -->
+0">Add New Acceptor</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="blood_type" class="form-label">Blood Type</label>
+                        <select class="form-control" id="blood_type" name="blood_type" required>
+                            {% for blood_type in blood_types %}
+                            <option value="{{ blood_type }}">{{ blood_type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact_number" class="form-label">Contact Number</label>
+                        <input type="tel" class="form-control" id="contact_number" name="contact_number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="health_condition" class="form-label">Health Condition</label>
+                        <textarea class="form-control" id="health_condition" name="health_condition" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Acceptor</button>
+                    <a href="{{ url_for('acceptors') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

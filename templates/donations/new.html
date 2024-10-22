@@ -1,0 +1,43 @@
+<!-- templates/donations/new.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Record New Donation</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="donor_id" class="form-label">Donor</label>
+                        <select class="form-control" id="donor_id" name="donor_id" required>
+                            {% for donor in donors %}
+                            <option value="{{ donor.donor_id }}">{{ donor.name }} ({{ donor.blood_type }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="blood_bank_id" class="form-label">Blood Bank</label>
+                        <select class="form-control" id="blood_bank_id" name="blood_bank_id" required>
+                            {% for bank in blood_banks %}
+                            <option value="{{ bank.blood_bank_id }}">{{ bank.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity (Liters)</label>
+                        <input type="number" step="0.01" class="form-control" id="quantity" name="quantity" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="donation_date" class="form-label">Donation Date</label>
+                        <input type="date" class="form-control" id="donation_date" name="donation_date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Record Donation</button>
+                    <a href="{{ url_for('donations') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

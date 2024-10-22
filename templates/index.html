@@ -1,0 +1,120 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h2>Dashboard</h2>
+        <hr>
+        <h3>View</h3>
+        <a href="{{ url_for('donors') }}" class="btn btn-primary mb-3">Donors</a>
+        <a href="{{ url_for('acceptors') }}" class="btn btn-primary mb-3">Acceptors</a>
+        <a href="{{ url_for('donations') }}" class="btn btn-primary mb-3">Donations</a>
+        <a href="{{ url_for('blood_banks') }}" class="btn btn-primary mb-3">Blood Banks</a>
+        <a href="{{ url_for('stock') }}" class="btn btn-primary mb-3">Stock</a>
+    </div>
+    <hr>
+    
+    <!-- Statistics Cards -->
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Donors</h5>
+                <h2 class="card-text">{{ stats.donor_count }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Donations</h5>
+                <h2 class="card-text">{{ stats.donation_count }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Acceptors</h5>
+                <h2 class="card-text">{{ stats.acceptor_count }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5 class="card-title">Total Transactions</h5>
+                <h2 class="card-text">{{ stats.transaction_count }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Blood Stock Table -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Current Blood Stock</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Blood Type</th>
+                            <th>Quantity (L)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in stock_levels %}
+                        <tr>
+                            <td>{{ stock.blood_type }}</td>
+                            <td>{{ stock.quantity }}</td>
+                            <td>
+                                {% if stock.quantity < 1 %}
+                                <span class="badge bg-danger">Low</span>
+                                {% elif stock.quantity < 3 %}
+                                <span class="badge bg-warning">Moderate</span>
+                                {% else %}
+                                <span class="badge bg-success">Good</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Donations -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Recent Donations</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Donor</th>
+                            <th>Date</th>
+                            <th>Quantity (L)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for donation in recent_donations %}
+                        <tr>
+                            <td>{{ donation.donor.name }}</td>
+                            <td>{{ donation.donation_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ donation.quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <p>{{ form.donor_id.label }} {{ form.donor_id }}</p>
+    <p>{{ form.acceptor_id.label }} {{ form.acceptor_id }}</p>
+    <p>{{ form.quantity.label }} {{ form.quantity }}</p>
+    <p>{{ form.transaction_date.label }} {{ form.transaction_date }}</p>
+    <button type="submit">Submit</button>
+</form>
+<a href="{{ url_for('main.transaction_list') }}">Back to Transaction List</a>
+{% endblock %}
