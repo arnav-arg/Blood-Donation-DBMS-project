@@ -1,0 +1,45 @@
+<!-- templates/donors/edit.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Edit Acceptor</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ acceptor.name }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="blood_type" class="form-label">Blood Type</label>
+            <select class="form-control" id="blood_type" name="blood_type" required>
+                {% for blood_type in blood_types %}
+                <option value="{{ blood_type }}" {% if blood_type == acceptor.blood_type %}selected{% endif %}>
+                    {{ blood_type }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="contact_number" class="form-label">Contact Number</label>
+            <input type="tel" class="form-control" id="contact_number" name="contact_number" 
+                   value="{{ acceptor.contact_number }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" id="address" name="address" rows="3" required>{{ acceptor.address }}</textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="health_condition" class="form-label">Health Condition</label>
+            <textarea class="form-control" id="health_condition" name="health_condition" rows="3">
+                {{ acceptor.health_condition }}
+            </textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Update Acceptor</button>
+        <a href="{{ url_for('acceptors') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

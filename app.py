@@ -127,6 +127,41 @@ def new_acceptor():
             flash(str(e), 'danger')
     return render_template('acceptors/new.html', blood_types=[bt.value for bt in BloodType])
 
+
+@app.route('/acceptors/<int:acceptor_id>/edit', methods=['GET', 'POST'])
+def edit_acceptor(acceptor_id):
+    acceptor = system.session.query(Acceptor).get(acceptor_id)
+    
+    if request.method == 'POST':
+        try:
+            acceptor.name = request.form['name']
+            acceptor.blood_type = request.form['blood_type']
+            acceptor.contact_number = request.form['contact_number']
+            acceptor.address = request.form['address']
+            acceptor.health_condition = request.form['health_condition']
+            
+            system.session.commit()
+            flash('Acceptor updated successfully!', 'success')
+            return redirect(url_for('acceptors'))
+        except Exception as e:
+            flash(str(e), 'danger')
+            
+    return render_template('acceptors/edit.html', 
+                         acceptor=acceptor, 
+                         blood_types=[bt.value for bt in BloodType])
+
+@app.route('/acceptors/<int:acceptor_id>/delete', methods=['POST'])
+def delete_acceptor(acceptor_id):
+    try:
+        acceptor = system.session.query(Acceptor).get(acceptor_id)
+        system.session.delete(acceptor)
+        system.session.commit()
+        flash('Acceptor deleted successfully!', 'success')
+    except Exception as e:
+        flash(str(e), 'danger')
+    return redirect(url_for('acceptors'))
+
+
 # Donation routes
 @app.route('/donations')
 def donations():
