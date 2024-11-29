@@ -1,5 +1,7 @@
 blood_donation_project/
 │
+├── images/
+│   ├── image.png
 ├── instance/
 │   ├── blood_donation.db
 ├── templates/
