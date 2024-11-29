@@ -1,220 +1,230 @@
-# imports
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash
+from models import db, Person, Donation, Receive, Stock
 from datetime import datetime
-from models import BloodDonationSystem, BloodType, Donor, Acceptor, BloodBank, Donation, Transaction
-from functools import wraps
-import os
-from werkzeug.security import generate_password_hash, check_password_hash
 
-#---------------------------------------------------------------------------------------------------------------
-
-# Basic initialisation
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
-system = BloodDonationSystem()
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blood_donation.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'your_secret_key'  # for flash messages
 
-#---------------------------------------------------------------------------------------------------------------
+db.init_app(app)
 
-# routes
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    # stats
-    stats = {
-        'donor_count': system.session.query(Donor).count(),
-        'acceptor_count': system.session.query(Acceptor).count(),
-        'donation_count': system.session.query(Donation).count(),
-        'transaction_count': system.session.query(Transaction).count(),
-    }
-    
-    # Get recent donations
-    recent_donations = system.session.query(Donation).order_by(Donation.created_at.desc()).limit(5).all()
-    
-    # Get blood stock levels
-    stock_levels = system.get_blood_stock_levels()
-    
-    return render_template('index.html', stats=stats, recent_donations=recent_donations, stock_levels=stock_levels)
+    return render_template('index.html')
 
-# Donor routes
-@app.route('/donors')
-def donors():
-    donors = system.session.query(Donor).all()
-    return render_template('donors/index.html', donors=donors)
+# Person CRUD
+# Route for listing persons
+# Route for listing persons with optional search
+@app.route('/person', methods=['GET', 'POST'])
+def person_list():
+    search_query = request.args.get('search')  # Get the search term from the query string
 
-@app.route('/donors/new', methods=['GET', 'POST'])
-def new_donor():
+    if search_query:
+        # If there's a search query, filter persons by name or phone
+        persons = Person.query.filter(
+            (Person.name.ilike(f'%{search_query}%')) | 
+            (Person.phone.ilike(f'%{search_query}%'))
+        ).all()
+    else:
+        # If no search query, just return all persons
+        persons = Person.query.all()
+
+    return render_template('person.html', persons=persons, search_query=search_query)
+
+# Route for adding a new person
+@app.route('/person/add', methods=['GET', 'POST'])
+def add_person():
     if request.method == 'POST':
-        try:
-            # Create the new donor
-            donor = system.add_donor(
-                name=request.form['name'],
-                date_of_birth=datetime.strptime(request.form['date_of_birth'], '%Y-%m-%d').date(),
-                blood_type=request.form['blood_type'],
-                contact_number=request.form['contact_number'],
-                address=request.form['address'],
-                medical_complications=request.form['medical_complications']
-            )
-            
-            # Get the Donor_ID of the newly added donor
-            donor_id = donor.donor_id  # Assuming your add_donor method returns the created donor object
-            
-            # Flash the success message with Donor_ID
-            flash(f'Donor added successfully! Donor ID: {donor_id}', 'success')
-            return redirect(url_for('donors'))
-        except Exception as e:
-            flash(str(e), 'danger')
-    return render_template('donors/new.html', blood_types=[bt.value for bt in BloodType])
-
-@app.route('/donors/<int:donor_id>/edit', methods=['GET', 'POST'])
-def edit_donor(donor_id):
-    donor = system.session.query(Donor).get(donor_id)
+        new_person = Person(
+            name=request.form['name'],
+            phone=request.form['phone'],
+            gender=request.form['gender'],
+            blood_group=request.form['blood_group'],
+            address=request.form['address'],
+            med_issues=request.form['med_issues'],
+            dob=datetime.strptime(request.form['dob'], '%Y-%m-%d')
+        )
+        db.session.add(new_person)
+        db.session.commit()
+        return redirect(url_for('person_list'))
     
+    return render_template('add_person.html')
+
+@app.route('/person/edit/<int:id>', methods=['GET', 'POST'])
+def edit_person(id):
+    person = Person.query.get_or_404(id)
     if request.method == 'POST':
-        try:
-            donor.name = request.form['name']
-            donor.date_of_birth = datetime.strptime(request.form['date_of_birth'], '%Y-%m-%d').date()
-            donor.blood_type = request.form['blood_type']
-            donor.contact_number = request.form['contact_number']
-            donor.address = request.form['address']
-            donor.medical_complications = request.form['medical_complications']
-            
-            system.session.commit()
-            flash('Donor updated successfully!', 'success')
-            return redirect(url_for('donors'))
-        except Exception as e:
-            flash(str(e), 'danger')
-            
-    return render_template('donors/edit.html', 
-                         donor=donor, 
-                         blood_types=[bt.value for bt in BloodType])
-
-@app.route('/donors/<int:donor_id>/delete', methods=['POST'])
-def delete_donor(donor_id):
-    try:
-        donor = system.session.query(Donor).get(donor_id)
-        system.session.delete(donor)
-        system.session.commit()
-        flash('Donor deleted successfully!', 'success')
-    except Exception as e:
-        flash(str(e), 'danger')
-    return redirect(url_for('donors'))
-
-# Acceptor routes
-@app.route('/acceptors')
-def acceptors():
-    acceptors = system.session.query(Acceptor).all()
-    return render_template('acceptors/index.html', acceptors=acceptors)
-
-@app.route('/acceptors/new', methods=['GET', 'POST'])
-def new_acceptor():
-    if request.method == 'POST':
-        try:
-            # Create the new acceptor
-            acceptor = system.add_acceptor(
-                name=request.form['name'],
-                blood_type=request.form['blood_type'],
-                contact_number=request.form['contact_number'],
-                address=request.form['address'],
-                health_condition=request.form['health_condition']
-            )
-            
-            # Get the Donor_ID of the newly added acceptor
-            acceptor_id = acceptor.acceptor_id  # Assuming your add_donor method returns the created acceptor object
-            
-            # Flash the success message with Acceptor_ID
-            flash(f'Acceptor added successfully! Acceptor ID: {acceptor_id}', 'success')
-            return redirect(url_for('acceptors'))
-        except Exception as e:
-            flash(str(e), 'danger')
-    return render_template('acceptors/new.html', blood_types=[bt.value for bt in BloodType])
-
-
-@app.route('/acceptors/<int:acceptor_id>/edit', methods=['GET', 'POST'])
-def edit_acceptor(acceptor_id):
-    acceptor = system.session.query(Acceptor).get(acceptor_id)
+        person.name = request.form['name']
+        person.phone = request.form['phone']
+        person.gender = request.form['gender']
+        person.blood_group = request.form['blood_group']
+        person.address = request.form['address']
+        person.med_issues = request.form['med_issues']
+        person.dob = datetime.strptime(request.form['dob'], '%Y-%m-%d')
+        db.session.commit()
+        return redirect(url_for('person_list'))
     
+    return render_template('person_edit.html', person=person)
+
+@app.route('/person/delete/<int:id>')
+def delete_person(id):
+    person = Person.query.get_or_404(id)
+    db.session.delete(person)
+    db.session.commit()
+    return redirect(url_for('person_list'))
+
+# Donations CRUD
+@app.route('/donation', methods=['GET', 'POST'])
+def donation_list():
+    search_query = request.args.get('search')  # Get the search query from the URL
+
     if request.method == 'POST':
-        try:
-            acceptor.name = request.form['name']
-            acceptor.blood_type = request.form['blood_type']
-            acceptor.contact_number = request.form['contact_number']
-            acceptor.address = request.form['address']
-            acceptor.health_condition = request.form['health_condition']
-            
-            system.session.commit()
-            flash('Acceptor updated successfully!', 'success')
-            return redirect(url_for('acceptors'))
-        except Exception as e:
-            flash(str(e), 'danger')
-            
-    return render_template('acceptors/edit.html', 
-                         acceptor=acceptor, 
-                         blood_types=[bt.value for bt in BloodType])
-
-@app.route('/acceptors/<int:acceptor_id>/delete', methods=['POST'])
-def delete_acceptor(acceptor_id):
-    try:
-        acceptor = system.session.query(Acceptor).get(acceptor_id)
-        system.session.delete(acceptor)
-        system.session.commit()
-        flash('Acceptor deleted successfully!', 'success')
-    except Exception as e:
-        flash(str(e), 'danger')
-    return redirect(url_for('acceptors'))
-
-
-# Donation routes
-@app.route('/donations')
-def donations():
-    donations = system.session.query(Donation).all()
-    return render_template('donations/index.html', donations=donations)
-
-@app.route('/donations/new', methods=['GET', 'POST'])
-def new_donation():
-    if request.method == 'POST':
-        try:
-            system.record_donation(
-                donor_id=int(request.form['donor_id']),
-                blood_bank_id=int(request.form['blood_bank_id']),
-                quantity=float(request.form['quantity']),
-                donation_date=datetime.strptime(request.form['donation_date'], '%Y-%m-%d').date()
-            )
-            flash('Donation recorded successfully', 'success')
-            return redirect(url_for('donations'))
-        except Exception as e:
-            flash(str(e), 'danger')
+        person = Person.query.get(request.form['person_id'])
+        if not person:
+            flash('Invalid person selected')
+            return redirect(url_for('donation_list'))
+        
+        new_donation = Donation(
+            person_id=request.form['person_id'],
+            quantity=float(request.form['quantity'])
+        )
+        db.session.add(new_donation)
+        
+        # Update stock
+        stock = Stock.query.filter_by(blood_group=person.blood_group).first()
+        if not stock:
+            stock = Stock(blood_group=person.blood_group, quantity=0)
+            db.session.add(stock)
+        stock.quantity += new_donation.quantity
+        
+        db.session.commit()
+        return redirect(url_for('donation_list'))
     
-    donors = system.session.query(Donor).all()
-    blood_banks = system.session.query(BloodBank).all()
-    return render_template('donations/new.html', donors=donors, blood_banks=blood_banks)
+    # Apply search filtering if search query exists
+    if search_query:
+        donations = Donation.query.join(Person).filter(
+            (Person.name.ilike(f'%{search_query}%')) | 
+            (Person.phone.ilike(f'%{search_query}%'))
+        ).all()
+    else:
+        donations = Donation.query.all()
 
-# Blood Bank routes
-@app.route('/blood-banks')
-def blood_banks():
-    blood_banks = system.session.query(BloodBank).all()
-    return render_template('blood_banks/index.html', blood_banks=blood_banks)
+    persons = Person.query.all()
+    return render_template('donation.html', donations=donations, persons=persons, search_query=search_query)
 
-@app.route('/blood-banks/new', methods=['GET', 'POST'])
-def new_blood_bank():
+@app.route('/donation/edit/<int:id>', methods=['GET', 'POST'])
+def edit_donation(id):
+    donation = Donation.query.get_or_404(id)
     if request.method == 'POST':
-        try:
-            blood_bank = BloodBank(
-                name=request.form['name'],
-                location=request.form['location'],
-                contact_number=request.form['contact_number']
-            )
-            system.session.add(blood_bank)
-            system.session.commit()
-            flash('Blood bank added successfully', 'success')
-            return redirect(url_for('blood_banks'))
-        except Exception as e:
-            flash(str(e), 'danger')
-    return render_template('blood_banks/new.html')
+        old_quantity = donation.quantity
+        new_quantity = float(request.form['quantity'])
+        donation.quantity = new_quantity
+        
+        # Update stock
+        person = donation.person
+        stock = Stock.query.filter_by(blood_group=person.blood_group).first()
+        stock.quantity += (new_quantity - old_quantity)
+        
+        db.session.commit()
+        return redirect(url_for('donation_list'))
+    
+    persons = Person.query.all()
+    return render_template('donation_edit.html', donation=donation, persons=persons)
 
-# Stock routes
-@app.route('/blood-stocks')
-def blood_stocks():
-    stock_levels = system.get_blood_stock_levels()
-    return render_template('blood_stocks/index.html', stock_levels=stock_levels)
+@app.route('/donation/delete/<int:id>')
+def delete_donation(id):
+    donation = Donation.query.get_or_404(id)
+    
+    # Reduce stock
+    stock = Stock.query.filter_by(blood_group=donation.person.blood_group).first()
+    stock.quantity = max(0, stock.quantity - donation.quantity)
+    
+    db.session.delete(donation)
+    db.session.commit()
+    return redirect(url_for('donation_list'))
+
+# Receive CRUD (similar pattern to Donation)
+@app.route('/receive', methods=['GET', 'POST'])
+def receive_list():
+    search_query = request.args.get('search')  # Get the search query from the URL
+
+    if request.method == 'POST':
+        person = Person.query.get(request.form['person_id'])
+        if not person:
+            flash('Invalid person selected')
+            return redirect(url_for('receive_list'))
+        
+        quantity = float(request.form['quantity'])
+        
+        # Check stock availability
+        stock = Stock.query.filter_by(blood_group=person.blood_group).first()
+        if not stock or stock.quantity < quantity:
+            flash('Insufficient blood stock')
+            return redirect(url_for('receive_list'))
+        
+        new_receive = Receive(
+            person_id=request.form['person_id'],
+            quantity=quantity
+        )
+        db.session.add(new_receive)
+        
+        # Reduce stock
+        stock.quantity -= quantity
+        
+        db.session.commit()
+        return redirect(url_for('receive_list'))
+    
+    # Apply search filtering if search query exists
+    if search_query:
+        receives = Receive.query.join(Person).filter(
+            (Person.name.ilike(f'%{search_query}%')) | 
+            (Person.phone.ilike(f'%{search_query}%'))
+        ).all()
+    else:
+        receives = Receive.query.all()
+
+    persons = Person.query.all()
+    return render_template('receive.html', receives=receives, persons=persons, search_query=search_query)
+
+@app.route('/receive/edit/<int:id>', methods=['GET', 'POST'])
+def edit_receive(id):
+    receive = Receive.query.get_or_404(id)
+    if request.method == 'POST':
+        old_quantity = receive.quantity
+        new_quantity = float(request.form['quantity'])
+        receive.quantity = new_quantity
+        
+        # Update stock
+        person = receive.person
+        stock = Stock.query.filter_by(blood_group=person.blood_group).first()
+        stock.quantity += (old_quantity - new_quantity)  # Increase stock by the reduced quantity
+        
+        db.session.commit()
+        return redirect(url_for('receive_list'))
+    
+    persons = Person.query.all()
+    return render_template('receive_edit.html', receive=receive, persons=persons)
+
+@app.route('/receive/delete/<int:id>')
+def delete_receive(id):
+    receive = Receive.query.get_or_404(id)
+    
+    # Increase stock
+    stock = Stock.query.filter_by(blood_group=receive.person.blood_group).first()
+    stock.quantity += receive.quantity  # Add the received quantity back to stock
+    
+    db.session.delete(receive)
+    db.session.commit()
+    return redirect(url_for('receive_list'))
+
+# Stock View (Read-only)
+@app.route('/stock')
+def stock_view():
+    stocks = Stock.query.all()
+    return render_template('stock.html', stocks=stocks)
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

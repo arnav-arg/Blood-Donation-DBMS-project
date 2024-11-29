@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Person Management</h2>
+    <h3>Add new Person</h3>
+    <div class="button-container">
+        <a href="{{ url_for('add_person') }}" class="btn-red">Add Person</a>
+    </div>
+    <hr>
+    <h3>Search Persons</h3>
+    <div class="form-container">
+        <!-- Search Form -->
+        <form method="GET" action="{{ url_for('person_list') }}">
+            <input type="text" name="search" placeholder="Search by name or phone" 
+                value="{{ search_query if search_query is not none else '' }}" required>
+            <button type="submit" class="btn btn-red">Search</button>
+        </form>
+    </div>
+    <hr>
+    <h3>Persons Database</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Blood Group</th>
+                <th>Medical Issues</th>
+                <th>Date of Birth</th>
+                <th>Phone</th>
+                <th>Gender</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for person in persons %}
+            <tr>
+                <td>{{ person.name }}</td>
+                <td>{{ person.blood_group }}</td>
+                <td>{{ person.med_issues }}</td>
+                <td>{{ person.dob }}</td>
+                <td>{{ person.phone }}</td>
+                <td>{{ person.gender }}</td>
+                <td>{{ person.address }}</td>
+                <td>
+                    <a href="{{ url_for('edit_person', id=person.id) }}" class="btn-red">Edit</a>
+                    <a href="{{ url_for('delete_person', id=person.id) }}" class="btn-red"
+                       onclick="return confirm('Are you sure you want to delete {{ person.name }}?');">
+                       Delete
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

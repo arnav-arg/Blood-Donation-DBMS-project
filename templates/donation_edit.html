@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Edit Donation</h2>
+    <form method="POST">
+        <div class="form-group">
+            <select name="person_id" required>
+                {% for person in persons %}
+                <option value="{{ person.id }}" {% if person.id == donation.person_id %}selected{% endif %}>
+                    {{ person.name }} ({{ person.blood_group }})
+                </option>
+                {% endfor %}
+            </select>
+            <input type="number" name="quantity" step="0.1" min="0" value="{{ donation.quantity }}" required>
+            <button type="submit" class="btn-red">Update Donation</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

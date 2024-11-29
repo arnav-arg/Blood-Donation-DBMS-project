@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Blood Stock</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Blood Group</th>
+                <th>Available Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+            <tr>
+                <td>{{ stock.blood_group }}</td>
+                <td>{{ stock.quantity }} ml</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

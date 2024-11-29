@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Edit Person</h2>
+    <form method="POST">
+        <div class="form-group">
+            <input type="text" name="name" value="{{ person.name }}" required>
+            <input type="tel" name="phone" value="{{ person.phone }}" required>
+            <select name="gender" required>
+                <option value="Male" {% if person.gender == 'Male' %}selected{% endif %}>Male</option>
+                <option value="Female" {% if person.gender == 'Female' %}selected{% endif %}>Female</option>
+                <option value="Other" {% if person.gender == 'Other' %}selected{% endif %}>Other</option>
+            </select>
+            <select name="blood_group" required>
+                {% for bg in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                <option value="{{ bg }}" {% if person.blood_group == bg %}selected{% endif %}>{{ bg }}</option>
+                {% endfor %}
+            </select>
+            <textarea name="address">{{ person.address }}</textarea>
+            <textarea name="med_issues">{{ person.med_issues }}</textarea>
+            <input type="date" name="dob" value="{{ person.dob.strftime('%Y-%m-%d') }}" required>
+            <button type="submit" class="btn-red">Update Person</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

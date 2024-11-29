@@ -1,0 +1,19 @@
+blood_donation_project/
+│
+├── instance/
+│   ├── blood_donation.db
+├── templates/
+│   ├── base.html
+│   ├── index.html
+│   ├── person.html
+│   ├── person_edit.html
+│   ├── add_person.html
+│   ├── donation.html
+│   ├── donation_edit.html
+│   ├── receive.html
+│   ├── receive_edit.html
+│   └── stock.html
+├── app.py
+├── models.py
+├── requirements.txt
+└── structure.txt

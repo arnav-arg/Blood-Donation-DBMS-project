@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Blood Receive Management</h2>
+    
+    <h3>New Receival</h3>
+    <!-- Receive Form -->
+    <form method="POST">
+        <div class="form-group">
+            <select name="person_id" required>
+                <option value="">Select Recipient</option>
+                {% for person in persons %}
+                <option value="{{ person.id }}">{{ person.name }} ({{ person.blood_group }}) ({{person.phone}})</option>
+                {% endfor %}
+            </select>
+            <input type="number" name="quantity" step="0.1" min="0" placeholder="Quantity (in ml)" required>
+            <button type="submit" class="btn-red">Record Receive</button>
+        </div>
+    </form>
+    <hr>
+    <h3>Search Receival</h3>
+    <!-- Search Form -->
+    <div class="form-container">
+        <form method="GET" action="{{ url_for('receive_list') }}">
+            <input type="text" name="search" placeholder="Search by recipient name or phone" 
+                value="{{ search_query if search_query is not none else '' }}" required>
+            <button type="submit" class="btn btn-red">Search</button>
+        </form>
+    </div>
+    <hr>
+    <h3>Receival Database</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Recipient Name</th>
+                <th>Phone</th>
+                <th>Blood Group</th>
+                <th>Quantity</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for receive in receives %}
+            <tr>
+                <td>{{ receive.person.name }}</td>
+                <td>{{ receive.person.phone }}</td>
+                <td>{{ receive.person.blood_group }}</td>
+                <td>{{ receive.quantity }} ml</td>
+                <td>{{ receive.date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <a href="{{ url_for('edit_receive', id=receive.id) }}" class="btn-red">Edit</a>
+                    <a href="{{ url_for('delete_receive', id=receive.id) }}" class="btn-red" onclick="return confirm('Are you sure you want to delete this record?')">Delete</a>
+                </td>                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

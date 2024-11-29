@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Edit Receive</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="person_id">Select Person</label>
+            <select name="person_id" id="person_id" required>
+                {% for person in persons %}
+                <option value="{{ person.id }}" {% if person.id == receive.person_id %}selected{% endif %}>
+                    {{ person.name }} ({{ person.blood_group }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" name="quantity" id="quantity" step="0.1" min="0" value="{{ receive.quantity }}" required>
+        </div>
+        <button type="submit" class="btn-red">Update Receive</button>
+    </form>
+</div>
+{% endblock %}
