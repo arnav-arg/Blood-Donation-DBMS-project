@@ -5,7 +5,7 @@
 The **Blood Donation Management System** is an application designed to manage and track the process of blood donation. The system allows users to record donations, manage donor and recipient data, track blood stock, and facilitate blood donations and transfusions. It aims to simplify the management of blood donation events and ensure that the required amount of blood is available for medical emergencies. Through a user-friendly interface, administrators and medical staff can efficiently handle the logistics involved in blood donation and storage.
 
 ## ER Diagram
-![Local image](./images/image.png)
+![Local image](./images/er.png)
 
 ## Features
 
