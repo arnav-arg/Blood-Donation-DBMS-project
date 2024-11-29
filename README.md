@@ -28,7 +28,6 @@ The **Blood Donation Management System** is an application designed to manage an
   - Flask (for web framework)
   - SQLAlchemy (for ORM and database management)
   - Jinja2 (for templating)
-  - Werkzeug (for security and utilities)
   - Bootstrap (for UI styling)
 
 To install the necessary dependencies:
