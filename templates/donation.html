@@ -37,6 +37,7 @@
                 <th>Blood Group</th>
                 <th>Quantity</th>
                 <th>Date</th>
+                <th>Time</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -47,7 +48,8 @@
                 <td>{{ donation.person.phone }}</td>
                 <td>{{ donation.person.blood_group }}</td>
                 <td>{{ donation.quantity }} ml</td>
-                <td>{{ donation.date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ donation.datetime.strftime('%d / %m / %Y') }}</td>
+                <td>{{ donation.datetime.strftime('%H : %M') }}</td>
                 <td>
                     <a href="{{ url_for('edit_donation', id=donation.id) }}" class="btn-red">Edit</a>
                     <a href="{{ url_for('delete_donation', id=donation.id) }}" class="btn-red"

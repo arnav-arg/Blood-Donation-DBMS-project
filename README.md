@@ -2,28 +2,44 @@
 
 ## Abstract
 
-The **Blood Donation Management System** is an application designed to manage and track the process of blood donation. The system allows users to record donations, manage donor and recipient data, track blood stock, and facilitate blood donations and transfusions. It aims to simplify the management of blood donation events and ensure that the required amount of blood is available for medical emergencies. Through a user-friendly interface, administrators and medical staff can efficiently handle the logistics involved in blood donation and storage.
+The **Blood Donation Management System** is an application designed to manage and track the process of blood donation. The system allows users to record donations and receivals, manage donor and recipient data and quantities of blood donated/received and track blood stock. It aims to simplify the management of blood donation events and ensure that the required amount of blood is available for medical emergencies. Through a user-friendly interface, administrators and medical staff can efficiently handle the logistics involved in blood donation and storage.
 
 ## ER Diagram
 ![Local image](./images/er.png)
 
 ## Features
 
-- **Donor Management**: Record and manage details of blood donors including personal information and blood group.
-- **Donation Management**: Record blood donations, track the quantity donated, and update blood stock levels.
-- **Recipient Management**: Manage records of recipients receiving blood transfusions.
+- **Person Management**: Records and manage details of blood donors and recipients including personal information along with blood group.
+- **Donation Management**: Records blood donations, track the quantity donated, and update blood stock levels.
+- **Recipient Management**: Records blood reseivals, track the quantity received, and update blood stock levels.
 - **Stock Management**: Automatically track the quantity of blood available in stock for each blood group.
-- **Search Functionality**: Search donors, donations, and recipients by name or phone number to easily find relevant records.
-- **CRUD Operations**: Perform Create, Read, Update, and Delete operations on donor, donation, and recipient records.
+- **Search Functionality**: Search people, donations, and recievals by name or phone number to easily find relevant records.
+- **CRUD Operations**: Perform Create, Read, Update, and Delete operations on people, donation, and recipient records.
 - **User-friendly Interface**: Simple and intuitive UI with responsive forms for data entry and management.
 - **Data Validation**: Ensure that the data entered (like quantity and dates) is valid and within acceptable ranges.
 - **Confirmation on Deletion**: Ensure accidental deletions are prevented with confirmation prompts.
+
+## Constraints
+
+- **Primary Keys**: All primary keys are ids
+- **Unique**: Person's phone is kept unique
+- **Nullables**: Address, Medical Issues (when there isnt a problem) are optional.
+- **On delete Cascade**: Whenever an entry from the Person table is deleted, the corresponding entries with the Person id matching the Donation and Receive tables is also deleted.
+- **Check Constraints**: Manual Constraints:
+  - Phone number should be of 10 digits
+  - Non negative quantity of blood stock
+- **Constraints via HTML forms**:
+  - Phone number error if not of 10 digits
+  - Valid blood groups (A-, A+, B-, B+, AB-, AB+, O-, O+)
+  - Date < Today's date
+  - Valid Gender (Male, Female, Other)
+  - Blood type compatibility
 
 ## System Requirements
 
 - **Operating System**: Cross-platform (Linux, macOS, Windows)
 - **Python Version**: 3.x
-- **Database**: SQLite (or any other relational database like PostgreSQL or MySQL for production)
+- **Database**: SQLite
 - **Libraries and Dependencies**:
   - Flask (for web framework)
   - SQLAlchemy (for ORM and database management)

@@ -25,6 +25,7 @@
                 <th>Blood Group</th>
                 <th>Medical Issues</th>
                 <th>Date of Birth</th>
+                <th>Last Donated</th>
                 <th>Phone</th>
                 <th>Gender</th>
                 <th>Address</th>
@@ -37,7 +38,8 @@
                 <td>{{ person.name }}</td>
                 <td>{{ person.blood_group }}</td>
                 <td>{{ person.med_issues }}</td>
-                <td>{{ person.dob }}</td>
+                <td>{{ person.dob.strftime('%d / %m / %Y') }}</td>
+                <td>{{ person.last_donated }}</td>
                 <td>{{ person.phone }}</td>
                 <td>{{ person.gender }}</td>
                 <td>{{ person.address }}</td>
